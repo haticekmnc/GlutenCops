@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "4961510073",
+    "project_id": "newglutencops",
+    "storage_bucket": "newglutencops.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:4961510073:android:0d9466162faaa5e9753168",
+        "android_client_info": {
+          "package_name": "com.example.gluten_cops"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAorqY1SPm7sqOZzZuSHaRqDqUCUHyhEE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
