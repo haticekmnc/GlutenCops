@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gluten_cops/screens/profile_screen.dart';
+import 'package:gluten_cops/screens/recipedetail_screen.dart';
 
 class RecipesPage extends StatelessWidget {
   RecipesPage({Key? key}) : super(key: key);
@@ -12,10 +14,34 @@ class RecipesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Yemek Tarifleri', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+              ),
+              const Text(
+                'Yemek Tarifleri',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -30,6 +56,35 @@ class RecipesPage extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(25.0)),
                   ),
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Popüler Ürünler',
+                    style: TextStyle(
+                      color: Colors.pink,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Here you can navigate to see all popular recipes
+                    },
+                    child: const Text(
+                      'Hepsini Gör',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             StreamBuilder<QuerySnapshot>(
@@ -53,9 +108,16 @@ class RecipesPage extends StatelessWidget {
                     return GestureDetector(
                       onTap: () {
                         // You can navigate to the recipe detail page here
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('${data['name']} tarifi seçildi'),
-                        ));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipeDetailScreen(
+                              recipeName: data['name'],
+                              recipeDescription: data['description'],
+                              recipeImage: data['image'],
+                            ),
+                          ),
+                        );
                       },
                       child: ListTile(
                         leading: Image.network(data['image']),
@@ -69,32 +131,6 @@ class RecipesPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.grey),
-            label: 'Anasayfa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book, color: Colors.pink),
-            label: 'Tarifler',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner, color: Colors.grey),
-            label: 'Barkod Okuma',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map, color: Colors.grey),
-            label: 'Haritalar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle, color: Colors.grey),
-            label: 'Hesaplar',
-          ),
-        ],
-        // Set the onTap handler to switch between pages.
-        // onTap: _onItemTapped,
       ),
     );
   }

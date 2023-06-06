@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gluten_cops/screens/homepage_screen.dart';
+import 'package:gluten_cops/screens/main_screen.dart';
 import 'package:gluten_cops/screens/register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -19,10 +19,10 @@ class LoginScreen extends StatelessWidget {
       );
 
       // User successfully signed in.
-      // For instance, you could push to a new screen here.
+      // Navigate to the MainPage.
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => MainPage()),
       );
     } on FirebaseAuthException catch (e) {
       String message;
@@ -34,6 +34,9 @@ class LoginScreen extends StatelessWidget {
         message =
             'Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyiniz.';
       }
+      // The widget's context may be unmounted at this point. Use a different context.
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
 
       final snackBar = SnackBar(content: Text(message));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);

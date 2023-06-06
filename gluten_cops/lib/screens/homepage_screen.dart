@@ -22,10 +22,11 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(33.0),
               child: Text(
                 'Hoşgeldin, ${user?.displayName ?? 'Kullanıcı'}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
             const Padding(
@@ -46,62 +47,12 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: Colors.grey,
-        selectedItemColor: Colors.pink,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Anasayfa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Tarifler',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
-            label: 'Barkod Okuma',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Haritalar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Hesaplar',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushNamed(context, '/');
-              break;
-            case 1:
-              Navigator.pushNamed(context, '/recipes');
-              break;
-            case 2:
-              Navigator.pushNamed(context, '/barcode');
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/maps');
-              break;
-            case 4:
-              Navigator.pushNamed(context, '/accounts');
-              break;
-            default:
-              break;
-          }
-        },
-
-        // Set the onTap handler to switch between pages.
-        // onTap: _onItemTapped,
-      ),
     );
   }
 
   Widget _buildCategory(String title, Stream<QuerySnapshot> stream) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -117,9 +68,9 @@ class HomePage extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  print('Hepsini gör clicked');
+                  print('Hepsini gör tıklandı');
                 },
-                child: Text(
+                child: const Text(
                   'Hepsini Gör',
                   style: TextStyle(color: Colors.grey),
                 ),
@@ -146,9 +97,13 @@ class HomePage extends StatelessWidget {
                       snapshot.data!.docs.map((DocumentSnapshot document) {
                     Map<String, dynamic> data =
                         document.data() as Map<String, dynamic>;
-                    return ListTile(
-                      title: Text(data['name']),
-                      subtitle: Text(data['description']),
+                    return SizedBox(
+                      width:
+                          160.0, // Bu değeri uygulamanızın tasarımına göre ayarlayabilirsiniz.
+                      child: ListTile(
+                        title: Text(data['name'] ?? 'No name'),
+                        subtitle: Text(data['description'] ?? 'No description'),
+                      ),
                     );
                   }).toList(),
                 ),
