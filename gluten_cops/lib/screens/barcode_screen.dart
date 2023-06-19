@@ -10,61 +10,76 @@ class BarcodeScreen extends StatefulWidget {
 
 class _BarcodeScreenState extends State<BarcodeScreen> {
   String _result = '';
-  String _productInfo = '';
+  String _productName = '';
+  String _glutenStatus = '';
+  String _imageUrl = '';
 
   Future<void> _scanBarcode() async {
     try {
       String barcode = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666', // Tarayıcı arka plan rengi
-        'İptal', // İptal butonunun metni
-        true, // Barkod tarayıcısının flaşını etkinleştirme
-        ScanMode.BARCODE, // Barkod tarayıcı modu
+        '#ff6666', // Scanner background color
+        'Cancel', // Cancel button text
+        true, // Enable scanner flash
+        ScanMode.BARCODE, // Barcode scanner mode
       );
       setState(() {
         _result = barcode;
       });
 
-      // Barkod tarama başarılı olursa, ürünü Firestore'dan al
-      if (_result != '-1' && _result != 'Tarama iptal edildi') {
+      if (_result != '-1' && _result != 'Scanning canceled') {
+        int barcodeNumber = int.parse(_result);
+
         FirebaseFirestore.instance
             .collection('products')
-            .where('barcodeNumber', isEqualTo: _result)
+            .where('barcodeNumber', isEqualTo: barcodeNumber)
             .get()
             .then((QuerySnapshot querySnapshot) {
           if (querySnapshot.docs.isNotEmpty) {
             var doc = querySnapshot.docs.first;
-            _productInfo = "Product Name: ${doc['productName']}\n"
-                "Product Brand: ${doc['productBrand']}\n"
-                "Barcode Number: ${doc['barcodeNumber']}\n"
-                "Gluten Status: ${doc['glutenStatus']}\n"
-                "Image Url: ${doc['imageUrl']}";
-            setState(() {});
+            setState(() {
+              _productName = doc['productName'];
+              _glutenStatus = doc['glutenStatus'];
+              _imageUrl = doc['imageUrl'];
+            });
           } else {
-            print("No product found with this barcode.");
+            setState(() {
+              _result = "Product not found in the database.";
+              _productName = '';
+              _glutenStatus = '';
+              _imageUrl = '';
+            });
           }
         });
       }
     } on PlatformException catch (e) {
       if (e.code == '-1') {
         setState(() {
-          _result = 'Kamera erişimi reddedildi';
-          _productInfo = '';
+          _result = 'Camera access denied';
+          _productName = '';
+          _glutenStatus = '';
+          _imageUrl = '';
         });
       } else {
         setState(() {
-          _result = 'Bir hata oluştu: $e';
-          _productInfo = '';
+          _result = 'An error occurred: $e';
+          _productName = '';
+          _glutenStatus = '';
+          _imageUrl = '';
         });
       }
     } on FormatException {
       setState(() {
-        _result = 'Tarama iptal edildi';
-        _productInfo = '';
+        _result = 'Scanning canceled';
+        _productName = '';
+        _glutenStatus = '';
+        _imageUrl = '';
       });
     } catch (e) {
       setState(() {
-        _result = 'Bir hata oluştu: $e';
-        _productInfo = '';
+        _result = 'An error occurred: $e';
+        _productName = '';
+        _glutenStatus = '';
+        _imageUrl = '';
       });
     }
   }
@@ -77,10 +92,10 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(20.0),
               child: Text(
-                'Ürünü Tarayınız',
+                'Scan Product',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
@@ -88,12 +103,34 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
                 ? Expanded(child: Container())
                 : Expanded(
                     child: Center(
-                      child: Text(
-                        _productInfo.isEmpty ? _result : _productInfo,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
+                      child: _productName.isEmpty
+                          ? Text(
+                              _result,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  _productName,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  _glutenStatus,
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.grey),
+                                  textAlign: TextAlign.center,
+                                ),
+                                _imageUrl.isNotEmpty
+                                    ? Image.network(_imageUrl)
+                                    : Container(),
+                              ],
+                            ),
                     ),
                   ),
             Padding(
@@ -105,7 +142,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
                     onPrimary: Colors.white,
                   ),
                   onPressed: _scanBarcode,
-                  child: const Text('Taramayı Başlat'),
+                  child: const Text('Start Scanning'),
                 ),
               ),
             ),
