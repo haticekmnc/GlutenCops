@@ -15,6 +15,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('Selected Button: $selectedButton');
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -133,7 +135,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           );
         },
         child: const Icon(Icons.add),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.pink,
       ),
     );
   }

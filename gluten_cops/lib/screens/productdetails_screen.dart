@@ -10,13 +10,16 @@ class ProductDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Map<String, dynamic> data = product.data() as Map<String, dynamic>;
 
+    print('Product Details Data: $data');
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.pink,
         title: const Text('Ürün Detayları'),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             data.containsKey('imageUrl') && data['imageUrl'] != null
                 ? Image.network(
@@ -29,8 +32,17 @@ class ProductDetailsScreen extends StatelessWidget {
                   ),
             const SizedBox(height: 20.0),
             data.containsKey('productName') && data['productName'] != null
-                ? Text('Ürün Adı: ${data['productName']}')
+                ? Text(
+                    'Ürün Adı: ${data['productName']}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
                 : const Text('Ürün adı bilgisi mevcut değil'),
+            data.containsKey('glutenStatus') && data['glutenStatus'] != null
+                ? Text(
+                    'Gluten Durumu: ${data['glutenStatus']}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                : const Text('Gluten durumu bilgisi mevcut değil'),
           ],
         ),
       ),

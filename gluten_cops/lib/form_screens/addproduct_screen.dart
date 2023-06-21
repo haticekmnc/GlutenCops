@@ -15,7 +15,7 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   final _formKey = GlobalKey<FormState>();
-  String dropdownValue = 'Contains Gluten';
+  String dropdownValue = 'Glutenli';
   File? _image;
   String? _imageUrl;
   String productName = '';
@@ -32,14 +32,14 @@ class _AddProductState extends State<AddProduct> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('No Image'),
-            content: const Text('Please add an image.'),
+            title: const Text('Resim yok'),
+            content: const Text('Lütfen bir resim ekleyin.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('OK'),
+                child: const Text('Tamam'),
               ),
             ],
           ),
@@ -56,14 +56,14 @@ class _AddProductState extends State<AddProduct> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('Saved'),
-            content: const Text('Product was successfully saved.'),
+            title: const Text('Kaydedildi'),
+            content: const Text('Ürün başarıyla kaydedildi.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('OK'),
+                child: const Text('Tamam'),
               ),
             ],
           ),
@@ -90,9 +90,9 @@ class _AddProductState extends State<AddProduct> {
       setState(() {
         _imageUrl = imageUrl;
       });
-      print('Image uploaded successfully. URL: $_imageUrl');
+      print('Resim başarıyla yüklendi. URL: $_imageUrl');
     } catch (error) {
-      print('Image upload failed: $error');
+      print('Resim yüklenemedi: $error');
     }
   }
 
@@ -122,195 +122,198 @@ class _AddProductState extends State<AddProduct> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 48.0),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.arrow_back),
-                  ),
-                  const SizedBox(width: 8.0),
-                  const Text(
-                    'Add Product',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24.0),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text('Select Image'),
-                      content: SingleChildScrollView(
-                        child: ListBody(
-                          children: <Widget>[
-                            GestureDetector(
-                              child: const Text('Camera'),
-                              onTap: () {
-                                _openCamera();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              child: const Text('Gallery'),
-                              onTap: () {
-                                _openGallery();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 48.0),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(Icons.arrow_back),
                     ),
-                  );
-                },
-                child: Center(
-                  child: Container(
-                    height: 200,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8.0),
+                    const SizedBox(width: 8.0),
+                    const Text(
+                      'Ürün Ekle',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    child: _image != null
-                        ? Image.file(_image!, fit: BoxFit.cover)
-                        : const Icon(
-                            Icons.camera_alt,
-                            size: 96,
-                            color: Colors.grey,
+                  ],
+                ),
+                const SizedBox(height: 24.0),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Resim seç'),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              GestureDetector(
+                                child: const Text('Kamera'),
+                                onTap: () {
+                                  _openCamera();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                child: const Text('Galeri'),
+                                onTap: () {
+                                  _openGallery();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
                           ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a product name.';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  productName = value!;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Brand',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a brand.';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  productBrand = value!;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              DropdownButtonFormField<String>(
-                value: dropdownValue,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: <String>['Contains Gluten', 'Gluten Free']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                decoration: const InputDecoration(
-                  labelText: 'Gluten Status',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Barcode No',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a barcode number.';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  barcodeNumber = value!;
-                },
-              ),
-              const SizedBox(height: 50.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: onSavePressed,
-                    child: Container(
-                      width: 100,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.pink,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                    );
+                  },
+                  child: Center(
+                    child: Container(
+                      height: 200,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: _image != null
+                          ? Image.file(_image!, fit: BoxFit.cover)
+                          : const Icon(
+                              Icons.camera_alt,
+                              size: 96,
+                              color: Colors.grey,
+                            ),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.pink),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
+                ),
+                const SizedBox(height: 24.0),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Ürün adı',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Lütfen ürün adı giriniz.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    productName = value!;
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Marka',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Lütfen bir marka giriniz.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    productBrand = value!;
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: dropdownValue,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValue = newValue!;
+                    });
+                  },
+                  items: <String>['Glutenli', 'Glutensiz']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Gluten Durumu',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Barcode No',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Lütfen bir barkod numarası giriniz.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    barcodeNumber = value!;
+                  },
+                ),
+                const SizedBox(height: 50.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: onSavePressed,
+                      child: Container(
+                        width: 100,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
                           color: Colors.pink,
-                          fontWeight: FontWeight.bold,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Kaydet',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 16.0),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.pink),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Kapat',
+                          style: TextStyle(
+                            color: Colors.pink,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
