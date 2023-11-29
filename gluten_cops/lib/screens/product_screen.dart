@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gluten_cops/form_screens/addproduct_screen.dart';
-import 'package:gluten_cops/screens/productdetails_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   @override
@@ -13,10 +12,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
   final Stream<QuerySnapshot> _allProductsStream =
       FirebaseFirestore.instance.collection('products').snapshots();
 
+  TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    print('Selected Button: $selectedButton');
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -45,10 +44,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
             ),
             const SizedBox(height: 20.0),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {});
+              },
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Search',
+                labelText: 'Ara',
               ),
             ),
             const SizedBox(height: 20.0),
@@ -67,58 +70,21 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
-                    return const Text('Something went wrong');
+                    return Text('Bir şeyler yanlış gitti: ${snapshot.error}');
                   }
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text("Loading");
+                    return Text("Yükleniyor");
                   }
 
-                  final products = snapshot.data!.docs;
-                  final filteredProducts = products.where((p) {
-                    final glutenStatus = p['glutenStatus'];
-                    if (selectedButton == 0) {
-                      return true;
-                    } else if (selectedButton == 1) {
-                      return glutenStatus == 'glutenli';
-                    } else {
-                      return glutenStatus == 'glutensiz';
-                    }
-                  }).toList();
+                  List<DocumentSnapshot> products = snapshot.data!.docs;
+                  List<DocumentSnapshot> filteredProducts =
+                      _filterProducts(products);
 
                   return ListView.builder(
                     itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
-                      Map<String, dynamic> productData = filteredProducts[index]
-                          .data() as Map<String, dynamic>;
-
-                      return Card(
-                        child: ListTile(
-                          leading: productData.containsKey('imageUrl') &&
-                                  productData['imageUrl'] != null
-                              ? Image.network(
-                                  productData['imageUrl'],
-                                  fit: BoxFit.cover,
-                                  height: 50,
-                                  width: 50,
-                                )
-                              : const Icon(
-                                  Icons.image_not_supported,
-                                  color: Colors.grey,
-                                ),
-                          title: Text(productData['productName']),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetailsScreen(
-                                  product: filteredProducts[index],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
+                      return _buildProductListTile(filteredProducts[index]);
                     },
                   );
                 },
@@ -140,10 +106,114 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
+  List<DocumentSnapshot> _filterProducts(List<DocumentSnapshot> products) {
+    String filter = '';
+    if (selectedButton == 1) {
+      filter = 'glutenli';
+    } else if (selectedButton == 2) {
+      filter = 'glutensiz';
+    }
+
+    return products.where((product) {
+      final productName = product['productName']?.toLowerCase() ?? '';
+      final productStatus = product['glutenStatus']?.toLowerCase() ?? '';
+      final searchText = _searchController.text.toLowerCase();
+
+      if (_searchController.text.isNotEmpty &&
+          !productName.contains(searchText)) {
+        return false;
+      }
+
+      if (selectedButton != 0 && productStatus != filter) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  Widget _buildProductListTile(DocumentSnapshot product) {
+    Map<String, dynamic> productData = product.data() as Map<String, dynamic>;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Card(
+        elevation: 5.0,
+        child: ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: productData.containsKey('imageUrl') &&
+                    productData['imageUrl'] != null
+                ? Image.network(
+                    productData['imageUrl'],
+                    fit: BoxFit.cover,
+                    height: 60,
+                    width: 60,
+                  )
+                : const Icon(
+                    Icons.image_not_supported,
+                    color: Colors.grey,
+                    size: 60,
+                  ),
+          ),
+          title: Text(productData['productName']),
+          onTap: () {
+            _showProductDetailPopup(context, productData);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showProductDetailPopup(
+      BuildContext context, Map<String, dynamic> productData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(productData['productName'], textAlign: TextAlign.center),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.network(
+                    productData['imageUrl'] ?? '',
+                    fit: BoxFit.cover,
+                    height: 200.0,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Gluten Durumu: ${productData['glutenStatus'] ?? 'Bilgi yok'}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Kapat', style: TextStyle(color: Colors.pink)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildButton(String name, int index, Color color) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          primary: (selectedButton == index) ? color : Colors.grey),
+        primary: selectedButton == index ? color : Colors.grey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
+        ),
+      ),
       onPressed: () {
         setState(() {
           selectedButton = index;
@@ -151,7 +221,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       },
       child: Text(
         name,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white),
       ),
     );
   }

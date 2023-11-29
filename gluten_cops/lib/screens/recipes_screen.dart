@@ -1,15 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gluten_cops/form_screens/addrecipe_screen.dart';
 import 'package:gluten_cops/screens/recipedetail_screen.dart';
 
-class RecipesPage extends StatelessWidget {
-  RecipesPage({Key? key}) : super(key: key);
+import '../form_screens/addrecipe_screen.dart';
 
+class RecipesPage extends StatefulWidget {
+  const RecipesPage({Key? key}) : super(key: key);
+
+  @override
+  _RecipesPageState createState() => _RecipesPageState();
+}
+
+class _RecipesPageState extends State<RecipesPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Stream<QuerySnapshot> _recipesStream =
       FirebaseFirestore.instance.collection('recipes').snapshots();
+
+  TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +25,8 @@ class RecipesPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 20.0),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 20.0),
           child: Text(
             'Yemek Tarifleri',
             style: TextStyle(
@@ -33,9 +41,13 @@ class RecipesPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {});
+                },
                 decoration: InputDecoration(
                   labelText: "Arama",
                   prefixIcon: Icon(Icons.search),
@@ -45,35 +57,7 @@ class RecipesPage extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Popüler Ürünler',
-                    style: TextStyle(
-                      color: Colors.pink,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Here you can navigate to see all popular recipes
-                    },
-                    child: const Text(
-                      'Hepsini Gör',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // ... (Diğer widget'lar)
             StreamBuilder<QuerySnapshot>(
               stream: _recipesStream,
               builder: (BuildContext context,
@@ -81,35 +65,46 @@ class RecipesPage extends StatelessWidget {
                 if (snapshot.hasError) {
                   return const Text('Something went wrong');
                 }
-
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-
+                // ... (Arama filtresi ve diğer işlemler)
                 return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(), // Scroll engelleme
                   shrinkWrap: true,
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
                     Map<String, dynamic> data = snapshot.data!.docs[index]
                         .data() as Map<String, dynamic>;
-                    return ListTile(
-                      leading: (data['imageUrl'] != null &&
-                              data['imageUrl'] is String)
-                          ? Image.network(data['imageUrl'])
-                          : Container(),
-                      title: Text(data['recipeName'] ?? 'Unnamed Recipe'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RecipeDetailScreen(
-                              recipeName: data['recipeName'],
-                              recipeDescription: data['recipeDescription'],
-                              recipeImage: data['imageUrl'],
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: data['imageUrl'] != null &&
+                                  data['imageUrl'] is String
+                              ? Image.network(
+                                  data['imageUrl'],
+                                  width: 70.0, // Resim genişliği
+                                  height: 70.0, // Resim yüksekliği
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(width: 70.0, height: 70.0),
+                        ),
+                        title: Text(data['recipeName'] ?? 'Unnamed Recipe'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecipeDetailScreen(
+                                recipeName: data['recipeName'],
+                                recipeDescription: data['recipeDescription'],
+                                recipeImage: data['imageUrl'],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     );
                   },
                 );
@@ -121,10 +116,10 @@ class RecipesPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.pink,
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AddRecipe()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const AddRecipe()));
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -17,7 +17,7 @@ class _MainPageState extends State<MainPage> {
   static List<Widget> _pages = [
     HomePage(),
     RecipesPage(),
-    const MapScreen(),
+    MapScreen(),
     BarcodeScreen(),
     const ProfileScreen(),
   ];

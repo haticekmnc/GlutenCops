@@ -92,7 +92,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(20.0),
               child: Text(
                 'Scan Product',

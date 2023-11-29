@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gluten_cops/screens/locations_screen.dart';
 import 'package:gluten_cops/screens/product_screen.dart';
 import 'package:gluten_cops/screens/recipes_screen.dart';
+import 'package:gluten_cops/screens/settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,6 +15,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isButtonPressed = false;
   int selectedButtonIndex = -1;
+
+  User? user = FirebaseAuth
+      .instance.currentUser; // Firebase'den kullanıcı bilgilerini al
 
   @override
   Widget build(BuildContext context) {
@@ -38,26 +43,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: const Icon(Icons.settings),
                   onPressed: () {
                     // Ayarlar sayfasına git
-                    Navigator.pushNamed(context, '/settings');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SettingsScreen()));
                   },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16.0),
-          const CircleAvatar(
+          CircleAvatar(
             radius: 64,
             backgroundImage: AssetImage(
                 'assets/images/splash.jpg'), // Kullanıcının resmi burada kullanılacak
           ),
           const SizedBox(height: 16.0),
-          const Text(
-            'Kullanıcı Adı Soyadı', // Kullanıcının adı soyadı burada yer alacak
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            user?.displayName ??
+                'Kullanıcı Adı Soyadı', // Kullanıcının adı soyadı burada yer alacak
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const Text(
-            'kullanici@mail.com', // Kullanıcının emaili burada yer alacak
-            style: TextStyle(fontSize: 16),
+          Text(
+            user?.email ??
+                'kullanici@mail.com', // Kullanıcının emaili burada yer alacak
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 24.0),
           Row(
@@ -92,10 +102,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         } else if (index == 1) {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => RecipesPage()));
+            context,
+            MaterialPageRoute(builder: (context) => const RecipesPage()),
+          );
         } else if (index == 2) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => LocationScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LocationScreen()),
+          );
         }
       },
       style: ButtonStyle(

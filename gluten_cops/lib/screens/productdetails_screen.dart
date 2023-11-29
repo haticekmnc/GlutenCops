@@ -10,39 +10,62 @@ class ProductDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Map<String, dynamic> data = product.data() as Map<String, dynamic>;
 
-    print('Product Details Data: $data');
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink,
-        title: const Text('Ürün Detayları'),
+        title: Text(data.containsKey('productName')
+            ? data['productName']
+            : 'Ürün Detayları'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             data.containsKey('imageUrl') && data['imageUrl'] != null
-                ? Image.network(
-                    data['imageUrl'],
-                    fit: BoxFit.cover,
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        15.0), // Resme yuvarlak köşeler ekleme
+                    child: Image.network(
+                      data['imageUrl'],
+                      fit: BoxFit.cover,
+                      height: 250, // Resim yüksekliği
+                    ),
                   )
-                : const Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey,
+                : Padding(
+                    padding: const EdgeInsets.all(50.0),
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.grey,
+                      size: 100,
+                    ),
                   ),
-            const SizedBox(height: 20.0),
-            data.containsKey('productName') && data['productName'] != null
-                ? Text(
-                    'Ürün Adı: ${data['productName']}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )
-                : const Text('Ürün adı bilgisi mevcut değil'),
-            data.containsKey('glutenStatus') && data['glutenStatus'] != null
-                ? Text(
-                    'Gluten Durumu: ${data['glutenStatus']}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )
-                : const Text('Gluten durumu bilgisi mevcut değil'),
+            const SizedBox(
+                height: 20.0), // Resim ile metin arasına boşluk ekleme
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ürün Adı: ${data['productName'] ?? 'Bilgi Yok'}',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  Text(
+                    'Gluten Durumu: ${data['glutenStatus'] ?? 'Bilgi Yok'}',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:gluten_cops/screens/main_screen.dart';
 import 'package:gluten_cops/screens/register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isPasswordVisible = false;
 
   void _signInWithEmailAndPassword(BuildContext context) async {
     try {
@@ -26,20 +33,17 @@ class LoginScreen extends StatelessWidget {
       );
     } on FirebaseAuthException catch (e) {
       String message;
-      if (e.code == 'kullanıcı bulunamadı') {
+      if (e.code == 'user-not-found') {
         message = 'Bu e-posta için kullanıcı bulunamadı.';
-      } else if (e.code == 'yanlış şifre') {
+      } else if (e.code == 'wrong-password') {
         message = 'Kullanıcı için sağlanan yanlış şifre.';
       } else {
         message =
             'Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyiniz.';
       }
-      // The widget's context may be unmounted at this point. Use a different context.
+
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
-
-      final snackBar = SnackBar(content: Text(message));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -145,7 +149,7 @@ class LoginScreen extends StatelessWidget {
       TextEditingController controller, String labelText, bool isPassword) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword && !_isPasswordVisible,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: const TextStyle(color: Colors.grey),
@@ -156,6 +160,26 @@ class LoginScreen extends StatelessWidget {
             Radius.circular(4),
           ),
         ),
+        suffixIcon: isPassword
+            ? AnimatedBuilder(
+                animation: _passwordController,
+                builder: (context, child) {
+                  return IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  );
+                },
+              )
+            : null,
       ),
     );
   }

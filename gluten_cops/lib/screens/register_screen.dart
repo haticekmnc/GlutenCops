@@ -14,6 +14,40 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController _passwordRepeatController =
       TextEditingController();
 
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> _register(BuildContext context) async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Kullanıcı başarıyla kaydedildiğinde, giriş ekranına yönlendir.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = 'Kayıt işlemi sırasında bir hata oluştu.';
+      if (e.code == 'weak-password') {
+        message = 'Sağlanan şifre çok zayıf.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'Bu e-posta adresi zaten kullanımda.';
+      } else {
+        message = 'Bilinmeyen bir hata oluştu.';
+      }
+
+      _showSnackBar(context, message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,42 +97,8 @@ class RegisterScreen extends StatelessWidget {
                     primary: Colors.pink, // background
                     onPrimary: Colors.white, // foreground
                   ),
-                  onPressed: () async {
-                    if (_passwordController.text !=
-                        _passwordRepeatController.text) {
-                      const snackBar =
-                          SnackBar(content: Text("Şifreler eşleşmiyor!"));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      return;
-                    }
-
-                    try {
-                      UserCredential userCredential =
-                          await _auth.createUserWithEmailAndPassword(
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text);
-
-                      // Navigate to another screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginScreen(),
-                        ),
-                      );
-                    } on FirebaseAuthException catch (e) {
-                      String message;
-                      if (e.code == 'weak-password') {
-                        message = 'Sağlanan şifre çok zayıf.';
-                      } else if (e.code == 'email-already-in-use') {
-                        message = 'Bu e-posta için hesap zaten var.';
-                      } else {
-                        message =
-                            'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.';
-                      }
-
-                      final snackBar = SnackBar(content: Text(message));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
+                  onPressed: () {
+                    _register(context);
                   },
                   child: const Text("KAYIT OL"),
                 ),

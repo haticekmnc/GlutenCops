@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/recipes': (context) => RecipesPage(),
         '/barcode': (context) => BarcodeScreen(),
-        '/map': (context) => const MapScreen(),
+        '/map': (context) => MapScreen(),
         '/profile': (context) => const ProfileScreen(),
       },
     );
